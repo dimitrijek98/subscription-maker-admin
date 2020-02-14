@@ -30,6 +30,10 @@ export default class SubscriptionService {
         return axios.get(`${baseURL}FindUser`, {email: email});
     }
 
+    getAllUsersContracts(email){
+        return axios.get(`${baseURL}UserContracts`, { email:email });
+    }
+
     setNewContract(email, target, plan){
         return axios.post(`${baseURL}NewContract`, { email:email, target:target, plan:plan});
     }

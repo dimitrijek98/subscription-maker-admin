@@ -16,4 +16,8 @@ export default class AuthService {
         const jsonUser = localStorage.getItem('user');
         return JSON.parse(jsonUser);
     }
+
+    LogOut(){
+        localStorage.removeItem('user');
+    }
 }
