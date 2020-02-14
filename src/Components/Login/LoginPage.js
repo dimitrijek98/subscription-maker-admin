@@ -13,21 +13,32 @@ class LoginPage extends Component {
 
     login = (e) => {
         e.preventDefault();
-        const codedPass = btoa(this.state.password);
-        this.AuthService.login(this.state.email, codedPass)
+        const codedPass = btoa(this.state.password); //ovo pravi problem
+        this.AuthService.login(this.state.email, this.state.password)
             .then(response => {
                 if (response.status === 200) {
                     this.AuthService.setUser(response.data);
-                    this.props.history.push('/dashboard', {user: response.data});
+                    if(response.data.rollID === "0"){
+                        this.props.history.push('/dashboardAdmin', {user: response.data});
+                    }
+                    if(response.data.rollID === "1"){
+                        this.props.history.push('/dashboarStaff', {user: response.data});
+                    }
                 }
             })
             .catch(err => {
-                console.log(err.body, err.data, err);
+                /*console.log(err.body, err.data, err);
                 if (err.status === 404) {
                     alert(err.data);
                 }
                 if (err.status === 422) {
                     alert(err.data);
+                }*/                
+                if(err == "Error: Request failed with status code 404"){
+                    alert("Ne postoji zaposleni.");
+                }
+                else if(err == "Error: Request failed with status code 422"){
+                    alert("Pogresili ste sifru.");
                 }
             });
     };

@@ -4,7 +4,7 @@ import {baseURL} from './Config'
 export default class AuthService {
 
     login(email, password) {
-        return axios.post(`${baseURL}admin-login`, {password, email});
+        return axios.post(`${baseURL}LogIn`, {password, email});
     }
 
     setUser(user) {
