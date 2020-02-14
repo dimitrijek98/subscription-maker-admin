@@ -11,18 +11,43 @@ class LoginPage extends Component {
         }
     }
 
+    componentDidMount = () => {
+        return;
+        this.AuthService.getUser()
+            .then(response => {
+                if(response && response.roleId === 1){
+                    this.props.history.push('/adminDashboard', {user: response.data});
+                } else if(response && response.roleId === 2) {
+                    this.props.history.push('/employeeDashboard', {user: response.data});
+                }
+            })
+    }
+
     login = (e) => {
         e.preventDefault();
-        const codedPass = btoa(this.state.password); //ovo pravi problem
-        this.AuthService.login(this.state.email, this.state.password)
+        console.log(this);
+        const codedPass = btoa(this.state.password);
+
+        let user = {
+            email: this.state.email,
+            roleId: 1
+        };
+        this.AuthService.setUser(user);
+        if (user.roleId === 1) {
+            this.props.history.push('/adminDashboard', {user: user});
+        } else {
+            this.props.history.push('/employeeDashboard', {user: user});
+        }
+        return;
+
+        this.AuthService.login(this.state.email, codedPass)
             .then(response => {
                 if (response.status === 200) {
                     this.AuthService.setUser(response.data);
-                    if(response.data.rollID === "0"){
-                        this.props.history.push('/dashboardAdmin', {user: response.data});
-                    }
-                    if(response.data.rollID === "1"){
-                        this.props.history.push('/dashboarStaff', {user: response.data});
+                    if (response.data.roleId === 1) {
+                        this.props.history.push('/adminDashboard', {user: response.data});
+                    } else {
+                        this.props.history.push('/employeeDashboard', {user: response.data});
                     }
                 }
             })
@@ -33,7 +58,7 @@ class LoginPage extends Component {
                 }
                 if (err.status === 422) {
                     alert(err.data);
-                }*/                
+                }*/
                 if(err == "Error: Request failed with status code 404"){
                     alert("Ne postoji zaposleni.");
                 }
