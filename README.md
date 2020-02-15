@@ -1,3 +1,17 @@
+# subscription-maker-admin
+Projekat na ovom repozitorijumu predstavlja admin deo nase aplikacije, koji se koristi za zaposljenje sa privilegijom admin i staff. 
+Sam administratorski deo sluzi za unos novih paketa i brisanje postojecih. Admin je lice sa posebnim ovlascenjem, ne postoji nikakv tip registracije jer se ovlascenja dobijaju od strane nadleznih koji admin podatke (rollID, email i password) direktno unose u bazu i daju adminu na koriscenje.
+Sam radnicki (staff) deo sluzi za unos novih korisnika u bazu, sklapanje novih ugovora i brisanje postojecih. Radnik je lice sa posebnim ovlascenjem, ne postoji nikakv tip registracije jer se ovlascenja dobijaju od strane nadleznih koji staff podatke (rollID, email i password) direktno unose u bazu i daju radniku na koriscenje.
+LoginPage.js fajl predstavlja stranicu na kojoj je moguce uneti dobijeni email i password. U slucaju uspesnog logovanja admin biva prosledjen na adminDashboard, a staff na employeeDashboard. Ukoliko je pri logovanju pogresio sifru, backend vraca gresku 422 i o tome obavestava alert-om. Ukoliko je pri logovanju pogresen email ili zapravo takav ne postoji, backend vraca gresku 404 i o tome obavestava alert-om.
+U slucaju korektnog logovanja, admin je prosledjen na adminDashboard. Na dashboardu se nalaze 2 forme, za unos novih paketa, za brisanje postojecih paketa. Ove forme nalaze se u CreateWizard.js i DisplayPlans.js fajlovima. 
+U slucaju korektnog logovanja, satff je prosledjen na employeeDashboard. Na dashboardu se nalazi bar za pretrazivanje korisnika, ako korisnik ne postoji otvara se forma za kreiranje profila korisnika, ako korisnik postoji vrsi se prikaz postojecih ugovora i mogucnost za njihovo uklanjanje i dodavanje novih ugovora. Ovo je napisano u EmployeeDashboard.js fajlu.
+Funkcije za logovanje rade sa AuthService.js fajlom, a funkcije za izmenu baze sa SubscriptionService.js fajlom. Oba service fajla nalaze se u folderu services. Koriscenjem axios.get i axios.post metoda, vrsi se komunikacija sa backednom.
+
+Admin aplikacija se pokrece na http://localhost:3000.
+
+
+
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
