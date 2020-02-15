@@ -7,68 +7,12 @@ class DisplayPlans extends Component {
         super(props);
         this.SubscriptionService = new SubscriptionService();
         this.state = {
-            plansData: [
-                {name: 'p1', services: [
-                        {
-                            type: 'Internet',
-                            speed: '100/20',
-                            amount: '1092'
-                        },
-                        {
-                            type: 'Cable',
-                            channelsCount: '160'
-                        }
-                    ]},
-                {name: 'p2', services: [
-                        {
-                            type: 'Internet',
-                            speed: '100/20',
-                            amount: '1092'
-                        },
-                        {
-                            type: 'Cable',
-                            channelsCount: '160'
-                        }
-                    ]},
-                {name: 'p3', services: [
-                        {
-                            type: 'Internet',
-                            speed: '100/20',
-                            amount: '1092'
-                        },
-                        {
-                            type: 'Cable',
-                            channelsCount: '160'
-                        }
-                    ]},
-                {name: 'p4', services: [
-                        {
-                            type: 'Internet',
-                            speed: '100/20',
-                            amount: '1092'
-                        },
-                        {
-                            type: 'Cable',
-                            channelsCount: '160'
-                        }
-                    ]},
-                {name: 'p5', services: [
-                        {
-                            type: 'Internet',
-                            speed: '100/20',
-                            amount: '1092'
-                        },
-                        {
-                            type: 'Cable',
-                            channelsCount: '160'
-                        }
-                    ]},
-            ],
+            plansData: [],
             loading: false,
         }
     }
     componentDidMount = () => {
-        //this.getAllPlans();
+        this.getAllPlans();
     }
 
     getAllPlans = () => {
@@ -81,20 +25,32 @@ class DisplayPlans extends Component {
             })
     };
 
-    deletePlan = () => {
-
+    deletePlan = (name) => {
+        this.SubscriptionService.deletePlan(name)
+            .then(response => {
+                if (response.status === 200) {
+                    window.location.reload();
+                }
+            }
+            );
     };
 
     renderPlans = () => {
+        if (this.state.plansData.length === 0) {
+            return <div className='col-12 p-5'>
+                <h3>There is no plans</h3>
+            </div>
+        } else {
         return this.state.plansData.map(plan => {
             return <div className='col-lg-5 mt-3 ml-3 contract-card'>
-                <h3>{`${plan.name} Info:`}</h3>
+                <h3>{`${plan.name}`}</h3>
+                <h5>{`Price: ${plan.price} RSD`}</h5>
+                <h3>{`Info:`}</h3>
                 {plan.services.map(service => {
                     if (service.type === 'Internet') {
                         return <div>
                             <h5>Internet</h5>
                             <h6>{`Speed: ${service.speed}`}</h6>
-                            <h6>{`Amount: ${service.amount}`}</h6>
                         </div>
                     } else if(service.type === 'Mobile'){
                         return <div>
@@ -106,7 +62,7 @@ class DisplayPlans extends Component {
                     } else if(service.type === 'Cable') {
                         return <div>
                             <h5>Cable</h5>
-                            <h6>{`Channels: ${service.channelsCount}`}</h6>
+                            <h6>{`Channels: ${service.channels}`}</h6>
                         </div>
                     } else {
                         return <div>
@@ -115,10 +71,11 @@ class DisplayPlans extends Component {
                         </div>
                     }
                 })}
-                <button onClick={() => this.deletePlan()} className='btn btn-danger mt-5'>Delete plan</button>
+                <button onClick={() => this.deletePlan(plan.name)} className='btn btn-danger mt-5'>Delete plan</button>
             </div>
         })
     }
+}
     render() {
         return (
             <div className='container full-height pt-5'>

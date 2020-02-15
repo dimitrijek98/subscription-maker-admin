@@ -12,53 +12,36 @@ class LoginPage extends Component {
     }
 
     componentDidMount = () => {
-        return;
-        this.AuthService.getUser()
-            .then(response => {
-                if(response && response.roleId === 1){
-                    this.props.history.push('/adminDashboard', {user: response.data});
-                } else if(response && response.roleId === 2) {
-                    this.props.history.push('/employeeDashboard', {user: response.data});
-                }
-            })
+        let user = this.AuthService.getUser();
+        if(user && user.rollID === "0"){
+            this.props.history.push('/adminDashboard', {user: user});
+        } else if(user && user.rollID === "1") {
+             this.props.history.push('/employeeDashboard', {user: user});
+        }
+            
     }
 
     login = (e) => {
         e.preventDefault();
-        console.log(this);
-        const codedPass = btoa(this.state.password);
-
-        let user = {
-            email: this.state.email,
-            roleId: 1
-        };
-        this.AuthService.setUser(user);
-        if (user.roleId === 1) {
-            this.props.history.push('/adminDashboard', {user: user});
-        } else {
-            this.props.history.push('/employeeDashboard', {user: user});
-        }
-        return;
-
-        this.AuthService.login(this.state.email, codedPass)
+        this.AuthService.login(this.state.email, this.state.password)
             .then(response => {
                 if (response.status === 200) {
-                    this.AuthService.setUser(response.data);
-                    if (response.data.roleId === 1) {
-                        this.props.history.push('/adminDashboard', {user: response.data});
-                    } else {
-                        this.props.history.push('/employeeDashboard', {user: response.data});
+                    if(response.data.rollID === "2"){
+                        alert("Nedozvoljen pristup!");
+                        window.location.reload();
+                    }
+                    else{
+                        this.AuthService.setUser(response.data);
+                        if (response.data.rollID === "0") {
+                            this.props.history.push('/adminDashboard', {user: response.data});
+                        }
+                        else {
+                            this.props.history.push('/employeeDashboard', {user: response.data});
+                        }
                     }
                 }
             })
             .catch(err => {
-                /*console.log(err.body, err.data, err);
-                if (err.status === 404) {
-                    alert(err.data);
-                }
-                if (err.status === 422) {
-                    alert(err.data);
-                }*/
                 if(err == "Error: Request failed with status code 404"){
                     alert("Ne postoji zaposleni.");
                 }

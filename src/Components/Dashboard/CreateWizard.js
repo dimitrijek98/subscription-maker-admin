@@ -1,8 +1,10 @@
 import React, {Component} from 'react';
+import SubscriptionService from "../../Services/SubscriptionService";
 
 class CreateWizard extends Component {
     constructor(props) {
         super(props);
+        this.SubscriptionService = new SubscriptionService();
         this.state = {
             step: 1,
             type: '',
@@ -12,26 +14,61 @@ class CreateWizard extends Component {
             mobileSelect: false,
             phoneSelect: false,
             cableSelect: false,
+            services: [],
             internet: {
+                type: 'Internet',
                 speed: '',
-                amount: '',
+                extras: [],
             },
             mobile: {
+                type: 'Mobile',
                 minutes: '',
                 sms: '',
                 internet: '',
+                extras: [],
             },
             phone: {
-                minutes: ''
+                type: 'Phone',
+                minutes: '',
+                extras: [],
             },
             cable: {
-                channelsCount: ''
+                type: 'Cable',
+                channels: '',
+                extras: [],
             },
         }
     }
 
-    handleInput = (e) => {
+    setNewPlan = () => {
+        this.SubscriptionService.setNewPlan(this.state.name, this.state.price, this.state.services)
+            .then(response => {
+                if (response.status === 200) {
+                    window.location.reload();
+                    this.setState({services: []});
+                }
+            }
+        );
+    };
+    
+    discardPlan = () => {
+        window.location.reload();
+        this.setState({services: []});
+    };
 
+    fillArray = () =>{
+        let niz = [];
+        if(this.state.phoneSelect){
+            niz.push(this.state.phone);
+        }
+        if(this.state.internetSelect){
+            niz.push(this.state.internet);
+        }
+        if(this.state.cableSelect){
+            niz.push(this.state.cable);
+        }
+        this.setState({step: this.state.step + 1,
+                        services: [...this.state.services, ...niz]});
     };
 
     handleSelect = (e) => {
@@ -80,13 +117,6 @@ class CreateWizard extends Component {
                                            value={this.state.internet.speed}
                                            onChange={(e) => this.setState({internet: {...this.state.internet, speed: e.target.value}})}/>
                                 </div>
-                                <div className="form-group pb-3">
-                                    <label htmlFor="exampleInputEmail1">Amount</label>
-                                    <input type="text" className="form-control mt-2"
-                                           disabled={!this.state.internetSelect}
-                                           value={this.state.internet.amount}
-                                           onChange={(e) => this.setState({internet: {...this.state.internet,amount: e.target.value}})}/>
-                                </div>
                             </div>
                         </div>
 
@@ -108,16 +138,17 @@ class CreateWizard extends Component {
                                 <input type='checkbox' className='form-control'  checked={this.state.cableSelect}
                                        onChange={this.handleSelect} value={'cableSelect'}/>
                                 <div className="form-group pb-3">
-                                    <label htmlFor="exampleInputEmail1">Channels number</label>
+                                    <label htmlFor="exampleInputEmail1">Number of channels</label>
                                     <input type="text" className="form-control mt-2"
                                            disabled={!this.state.cableSelect}
-                                           value={this.state.cable.channelsCount}
-                                           onChange={(e) => this.setState({cable: {...this.state.cable,channelsCount: e.target.value}})}/>
+                                           value={this.state.cable.channels}
+                                           onChange={(e) => this.setState({cable: {...this.state.cable,channels: e.target.value}})}/>
                                 </div>
                             </div>
                         </div>
                         <div className='col-12'>
-                            <button className='btn btn-light' onClick={() => this.setState({step: this.state.step + 1})}>Next</button>
+                            <button disabled={!this.state.internetSelect && !this.state.phoneSelect && !this.state.cableSelect} 
+                                    className='btn btn-light' onClick={() => this.fillArray()}>Next</button>
                         </div>
                     </React.Fragment>
                     }
@@ -126,7 +157,7 @@ class CreateWizard extends Component {
                         <div className='col-12 p-5'>
                             <h4>What will your plan include</h4>
                         </div>
-                        <div className='col-md-4 p-5'>
+                        <div className='col-md-12 p-5'>
                             <div className='my-card'>
                                 <div className="form-group pb-3">
                                     <label htmlFor="exampleInputEmail1">Internet</label>
@@ -150,8 +181,9 @@ class CreateWizard extends Component {
                             </div>
                         </div>
                         <div className='col-12'>
-                            <button className='btn btn-light'
-                                    onClick={() => this.setState({step: this.state.step + 1})}>Next
+                            <button className='btn btn-light' 
+                                    onClick={() => this.setState({step: this.state.step + 1,
+                                                                    services: [...this.state.services, this.state.mobile]})}>Next
                             </button>
                         </div>
                     </React.Fragment>
@@ -180,7 +212,54 @@ class CreateWizard extends Component {
                         </div>
                         <div className='col-12'>
                             <button className='btn btn-light btn-lg'
-                                    onClick={() => this.setState({step: this.state.step + 1})}>Create
+                                    onClick={() => this.setState({step: this.state.step + 1})}>Preview
+                            </button>
+                        </div>
+                    </React.Fragment>
+                    }
+                    {this.state.step === 4 &&
+                    <React.Fragment>
+                        <div className='col-12 p-5'>
+                            <h4>Plan Info</h4>
+                        </div>
+                        <div className='col-md-12 p-5'>
+                            <div className='my-card'>
+                            <h3>{`${this.state.name}`}</h3>
+                            <h5>{`Price: ${this.state.price} RSD`}</h5>
+                            <h3>{`Info:`}</h3>
+                            {this.state.services.map(service => {
+                                if (service.type === 'Internet') {
+                                    return <div>
+                                        <h5>Internet</h5>
+                                        <h6>{`Speed: ${service.speed}`}</h6>
+                                    </div>
+                                } else if(service.type === 'Mobile'){
+                                    return <div>
+                                        <h5>Mobile</h5>
+                                        <h6>{`Internet: ${service.internet}`}</h6>
+                                        <h6>{`Minutes: ${service.minutes}`}</h6>
+                                        <h6>{`SMS: ${service.sms}`}</h6>
+                                    </div>
+                                } else if(service.type === 'Cable') {
+                                    return <div>
+                                        <h5>Cable</h5>
+                                        <h6>{`Channels: ${service.channels}`}</h6>
+                                    </div>
+                                } else {
+                                    return <div>
+                                        <h5>Phone</h5>
+                                        <h6>{`Minutes: ${service.minutes}`}</h6>
+                                    </div>
+                                }
+                            })}
+                        </div>
+                        </div>
+                        <div className='col-12 p-2'>
+                            <button className='btn btn-light btn-lg mr-5'
+                                    onClick={() => this.setNewPlan()}>Create
+                            </button>
+                        <button className='btn btn-light btn-lg'
+                                    onClick={() => this.discardPlan()}>Discard
                             </button>
                         </div>
                     </React.Fragment>
