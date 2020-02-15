@@ -51,6 +51,7 @@ class EmployeeDashboard extends Component {
             .then(response => {
                 if(response.data.rollID === "2"){
                     this.setState({existingUser: true, 
+                                    noUser:false,
                                     addContract: true, 
                                     user: {...this.state.user, email: response.data.email}
                                 });
@@ -117,8 +118,7 @@ class EmployeeDashboard extends Component {
         this.SubscriptionService.setNewUser(user.email, user.password, user.name, user.surname)
             .then(response => {
                 if (response.status === 200) {
-                    this.getAllUsersContracts(user);
-                    this.setState({noUser:false, existingUser:true, addContract: true});
+                    this.setState({contractsData: [], noUser:false, existingUser:true, addContract: true});
                 }
             });
     };
